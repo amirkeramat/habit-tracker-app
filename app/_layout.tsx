@@ -1,29 +1,35 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { Stack, useRouter } from "expo-router";
+import { useEffect } from "react";
+import "../global.css";
+import useIsMounted from "../hooks/is-mounted";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+type Props = {
+  children: React.ReactNode;
+};
+
+function RouteGourd({ children }: Props) {
+  const router = useRouter();
+  const isAuth = false;
+
+  useEffect(() => {
+    if (!isAuth) {
+      router.replace("/auth");
+    }
+  }, [isAuth]);
+
+  return <>{children}</>;
+}
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+  const isMounted = useIsMounted();
 
-  if (!loaded) {
-    // Async font loading only occurs in development.
-    return null;
-  }
+  if (!isMounted) return null;
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <RouteGourd>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
       </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    </RouteGourd>
   );
 }
